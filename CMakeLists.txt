@@ -1,11 +1,15 @@
 cmake_minimum_required(VERSION 3.13) # target_link_options
-#cmake_minimum_required(VERSION 3.16) # target_precompile_headers
 
-project(OpenFrameworks_CMake)
+set(CMAKE_PROJECT_NAME template)
 
-set(OF_DIR /opt/openFrameworks)
+project(${CMAKE_PROJECT_NAME})
+set(CMAKE_CXX_FLAGS "-std=c++20")
+
+set(OF_DIR "/opt/openFrameworks")
 set(OF_LIBS_ROOT_DIR "${OF_DIR}/libs")
-set(OF_SRC_DIR "${OF_DIR}/libs/openFrameworks")
+set(OF_SRC_DIR "${OF_DIR}/libs/openFrameworks/")
+
+include_directories(${OF_DIR}${OF_SRC_DIR})
 
 add_library(openFrameworks STATIC
   ${OF_SRC_DIR}/utils/ofTimer.cpp
@@ -58,6 +62,8 @@ add_library(openFrameworks STATIC
   ${OF_SRC_DIR}/math/ofVec2f.cpp
   ${OF_SRC_DIR}/gl/ofMaterial.cpp
   ${OF_SRC_DIR}/gl/ofShader.cpp
+  ${OF_SRC_DIR}/gl/ofShadow.cpp
+  ${OF_SRC_DIR}/gl/ofCubeMap.cpp
   ${OF_SRC_DIR}/gl/ofLight.cpp
   ${OF_SRC_DIR}/gl/ofFbo.cpp
   ${OF_SRC_DIR}/gl/ofGLUtils.cpp
@@ -79,11 +85,9 @@ add_library(openFrameworks STATIC
   ${OF_SRC_DIR}/3d/ofEasyCam.cpp
   )
 
-set_property(TARGET openFrameworks PROPERTY CXX_STANDARD 14)
 target_include_directories(openFrameworks PUBLIC
   /usr/include/cairo
   /usr/include/glib-2.0
-  /usr/lib/glib-2.0/include
   /usr/include/pixman-1
   /usr/include/freetype2
   /usr/include/libpng16
@@ -102,12 +106,14 @@ target_include_directories(openFrameworks PUBLIC
   /usr/include/atk-1.0
   /usr/include/at-spi2-atk/2.0
   /usr/include/dbus-1.0
-  /usr/lib/dbus-1.0/include
   /usr/include/at-spi-2.0
+  /usr/lib/dbus-1.0/include
+  /usr/lib/glib-2.0/include
   )
 
-target_include_directories(openFrameworks PUBLIC
-  # ${OF_DIR}/libs/fmodex/include
+#target_include_directories(openFrameworks PUBLIC
+include_directories(
+  ${OF_DIR}/libs/fmod/include
   ${OF_DIR}/libs/glm/include
   ${OF_DIR}/libs/glm/include/glm
   ${OF_DIR}/libs/glm/include/glm/simd
@@ -160,7 +166,6 @@ target_link_directories(openFrameworks INTERFACE
   )
 
 target_link_libraries(openFrameworks INTERFACE
-  # fmodex
   ${OF_DIR}/libs/kiss/lib/linux64/libkiss.a
   ${OF_DIR}/libs/tess2/lib/linux64/libtess2.a
   gstapp-1.0
@@ -219,19 +224,19 @@ target_link_options(openFrameworks INTERFACE
   -fuse-ld=gold
   )
 
-set_property(TARGET openFrameworks PROPERTY CXX_STANDARD 11)
-
-############################################################
+include_directories(${OF_DIR}${OF_SRC_DIR})
 
 add_executable(${CMAKE_PROJECT_NAME}
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/ofApp.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
-  )
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/ofApp.cpp
+)
 
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE openFrameworks)
+##############################################################
 
-# target_precompile_headers(helloWorld
+target_link_libraries(${CMAKE_PROJECT_NAME} openFrameworks)
+
+#set_property(TARGET ${CMAKE_PROJECT_NAME} PROPERTY CXX_STANDARD 20)
+#
+# target_precompile_headers(test
 #   PRIVATE <ofMain.h>
-#   )
-
-set_property(TARGET ${CMAKE_PROJECT_NAME} PROPERTY CXX_STANDARD 11)
+#  )
